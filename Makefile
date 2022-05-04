@@ -53,7 +53,7 @@ else
     ifeq ($(UNAME), Linux)
       PDNATIVE_PLATFORM = linux
       JAVA_HOME ?= /usr/lib/jvm/default-java
-      PLATFORM_CFLAGS += -I"$(JAVA_HOME)/include/linux" -DHAVE_LIBDL
+      PLATFORM_CFLAGS += -I"$(JAVA_HOME)/include/linux" -I"$(JAVA_HOME)/include" -DHAVE_LIBDL
       LDFLAGS += -ldl
     else ifeq ($(UNAME), FreeBSD)
       PDNATIVE_PLATFORM = FreeBSD
@@ -74,7 +74,9 @@ PD_FILES = \
     pure-data/src/d_fft_fftsg.c \
     pure-data/src/d_filter.c pure-data/src/d_global.c pure-data/src/d_math.c \
     pure-data/src/d_misc.c pure-data/src/d_osc.c pure-data/src/d_resample.c \
-    pure-data/src/d_soundfile.c pure-data/src/d_ugen.c \
+    pure-data/src/d_soundfile.c pure-data/src/d_soundfile_aiff.c \
+    pure-data/src/d_soundfile_caf.c pure-data/src/d_soundfile_next.c \
+    pure-data/src/d_soundfile_wave.c pure-data/src/d_ugen.c \
     pure-data/src/g_all_guis.c pure-data/src/g_array.c pure-data/src/g_bang.c \
     pure-data/src/g_canvas.c pure-data/src/g_clone.c pure-data/src/g_editor.c \
     pure-data/src/g_editor_extras.c \
@@ -93,6 +95,7 @@ PD_FILES = \
     pure-data/src/s_net.c pure-data/src/s_path.c \
     pure-data/src/s_print.c pure-data/src/s_utf8.c pure-data/src/x_acoustics.c \
     pure-data/src/x_arithmetic.c pure-data/src/x_array.c pure-data/src/x_connective.c \
+    pure-data/src/x_file.c \
     pure-data/src/x_gui.c pure-data/src/x_interface.c pure-data/src/x_list.c \
     pure-data/src/x_midi.c pure-data/src/x_misc.c pure-data/src/x_net.c \
     pure-data/src/x_scalar.c pure-data/src/x_text.c pure-data/src/x_time.c \
@@ -115,7 +118,7 @@ LIBPD_UTILS = \
 
 PDJAVA_JAR_CLASSES = \
     java/org/puredata/core/PdBase.java \
-    java/org/puredata/core/PdBaseloader.java \
+    java/org/puredata/core/PdBaseLoader.java \
     java/org/puredata/core/NativeLoader.java \
     java/org/puredata/core/PdListener.java \
     java/org/puredata/core/PdMidiListener.java \
@@ -149,6 +152,12 @@ endif
 MULTI_CFLAGS =
 ifeq ($(MULTI), true)
     MULTI_CFLAGS = -DPDINSTANCE -DPDTHREADS
+endif
+
+# conditional double-precision support
+DOUBLE_CFLAGS =
+ifeq ($(DOUBLE), true)
+    DOUBLE_CFLAGS = -DPD_FLOATSIZE=64
 endif
 
 # conditional optimizations or debug settings
@@ -207,8 +216,8 @@ CFLAGS = -DPD -DHAVE_UNISTD_H -DUSEAPI_DUMMY \
          -I./libpd_wrapper -I./libpd_wrapper/util \
          -I./pure-data/src \
          $(PLATFORM_CFLAGS) \
-         $(OPT_CFLAGS) $(EXTRA_CFLAGS) $(MULTI_CFLAGS) $(LOCALE_CFLAGS) \
-         $(ADDITIONAL_CFLAGS)
+         $(OPT_CFLAGS) $(EXTRA_CFLAGS) $(MULTI_CFLAGS) $(DOUBLE_CFLAGS) \
+         $(LOCALE_CFLAGS) $(ADDITIONAL_CFLAGS)
 LDFLAGS += $(ADDITIONAL_LDFLAGS)
 CSHARP_LDFLAGS += $(ADDITIONAL_LDFLAGS)
 JAVA_LDFLAGS += $(ADDITIONAL_LDFLAGS)
